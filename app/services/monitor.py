@@ -4,22 +4,17 @@ from datetime import datetime, timedelta
 from typing import Dict
 from fastapi import WebSocket
 from scapy.all import sniff, ARP
-from queue import Queue
 from services.host_cache import HostCache
 from utils.host_builder import HostBuilder
 from models.host import Host, Status
-import manuf
 
 class Monitor:
     def __init__(self, host_cache_file: str):
-        self._running = False
+        self._running: bool = False
         self.websocket: WebSocket = None
-        self.host_cache = HostCache(host_cache_file, self.websocket)
-        self.mac_parser = manuf.MacParser()
-        self.host_builder = HostBuilder()
-        self.queue: Queue = Queue()
-        self.loop = asyncio.get_event_loop()
-        self.last_update_time = Dict[str, datetime] = {}
+        self.host_cache: HostCache = HostCache(host_cache_file, self.websocket)
+        self.host_builder: HostBuilder = HostBuilder()
+        self.last_update_time: Dict[str, datetime] = {}
         self.last_websocket_update_time: datetime = datetime.now()
 
     def start_sniffing(self):
