@@ -4,7 +4,7 @@ from models.host import Host
 from typing import List
 
 monitor_router = APIRouter()
-monitor = Monitor()
+monitor = Monitor('host_cache.json')
 
 @monitor_router.websocket_route("/ws")
 async def websocket_endpoint_monitor(websocket: WebSocket):
