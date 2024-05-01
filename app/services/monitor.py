@@ -14,6 +14,7 @@ class Monitor:
         self.websocket: WebSocket = None
         self.host_cache: HostCache = HostCache(host_cache_file, self.websocket)
         self.host_builder: HostBuilder = HostBuilder()
+        self.loop: asyncio.AbstractEventLoop = asyncio.get_event_loop()
         self.last_update_time: Dict[str, datetime] = {}
         self.last_websocket_update_time: datetime = datetime.now()
 
