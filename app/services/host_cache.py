@@ -1,5 +1,6 @@
-from datetime import timedelta
+from datetime import datetime, timedelta
 import json
+import os
 from typing import List
 from fastapi import WebSocket
 from fastapi.websockets import WebSocketState
@@ -7,8 +8,11 @@ from utils.date_time_encoder import DateTimeEncoder
 from models.host import Host
 
 class HostCache:
-    def __init__(self, filename: str, websocket: WebSocket = None):
-        self.filename = filename
+    def __init__(self, websocket: WebSocket = None):
+        timestamp = datetime.now().strftime("%Y%m%d%H%M%S")
+        self.session_dir = f"session_{timestamp}"
+        os.makedirs(self.session_dir, exist_ok=True)
+        self.filename = os.path.join(self.session_dir, "host_cache.json")
         self.websocket = websocket
         self.hosts = self.load()
 
@@ -18,6 +22,11 @@ class HostCache:
                 data = json.load(f)
                 return [Host(**host) for host in data]
         except FileNotFoundError:
+            return []
+        except json.JSONDecodeError:
+            # Overwrite the file with an empty list
+            with open(self.filename, 'w') as f:
+                json.dump([], f)
             return []
 
     def update(self, new_hosts: List[Host]) -> bool:
