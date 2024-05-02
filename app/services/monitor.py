@@ -9,34 +9,45 @@ from utils.host_builder import HostBuilder
 from models.host import Host, Status
 
 class Monitor:
-    def __init__(self, host_cache_file: str):
+    def __init__(self):
         self._running: bool = False
         self.websocket: WebSocket = None
-        self.host_cache: HostCache = HostCache(host_cache_file, self.websocket)
+        self.host_cache: HostCache = HostCache(self.websocket)
         self.host_builder: HostBuilder = HostBuilder()
         self.loop: asyncio.AbstractEventLoop = asyncio.get_event_loop()
+        self.sniff_thread: threading.Thread = None
         self.last_update_time: Dict[str, datetime] = {}
         self.last_websocket_update_time: datetime = datetime.now()
 
     def start_sniffing(self):
-        try:
-            sniff(filter="arp",
-                  prn=self.process_packet,
-                  store=0,
-                  stop_filter=lambda _: not self._running)
-        except Exception as e:
-            print(f"Exception in sniffing thread: {e}")
+        sniff(filter="arp",
+                prn=self.process_packet,
+                store=0,
+                stop_filter=lambda _: not self.is_running())
 
     async def start(self):
-        self._running = True
-        sniff_thread = threading.Thread(target=self.start_sniffing)
-        sniff_thread.start()
-        while self._running:
-            self.update_host_statuses()
-            await asyncio.sleep(30)
+        if self._running:
+            raise Exception("Monitor is already running")
+        try:
+            self._running = True
+            self.sniff_thread = threading.Thread(target=self.start_sniffing)
+            self.sniff_thread.start()
+            while self._running:
+                self.update_host_statuses()
+                await asyncio.sleep(30)
+        except Exception as e:
+            self._running = False
+            raise Exception(e)
 
     def stop(self):
-        self._running = False
+        if not self._running:
+            raise Exception("Monitor is not running")
+        try:
+            self._running = False
+            if self.sniff_thread is not None:
+                self.sniff_thread.join()
+        except Exception as e:
+            raise Exception(e)
 
     def is_running(self) -> bool:
         return self._running

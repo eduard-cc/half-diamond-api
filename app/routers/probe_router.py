@@ -1,4 +1,4 @@
-from fastapi import APIRouter, BackgroundTasks
+from fastapi import APIRouter, BackgroundTasks, HTTPException
 from services.probe import Probe
 
 probe_router = APIRouter()
@@ -10,10 +10,16 @@ def get_probe_status():
 
 @probe_router.post("/start")
 async def start_probe(background_tasks: BackgroundTasks):
-    background_tasks.add_task(probe.start)
-    return {"message": "Probe started"}
+    try:
+        background_tasks.add_task(probe.start)
+        return {"message": "Probe started"}
+    except Exception as e:
+        raise HTTPException(status_code=500, detail=str(e))
 
 @probe_router.post("/stop")
 async def stop_probe():
-    probe.stop()
-    return {"message": "Probe stopped"}
+    try:
+        probe.stop()
+        return {"message": "Probe stopped"}
+    except Exception as e:
+        raise HTTPException(status_code=500, detail=str(e))
