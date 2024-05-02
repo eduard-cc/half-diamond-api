@@ -9,10 +9,7 @@ from models.host import Host
 
 class HostCache:
     def __init__(self, websocket: WebSocket = None):
-        timestamp = datetime.now().strftime("%Y%m%d%H%M%S")
-        self.session_dir = f"session_{timestamp}"
-        os.makedirs(self.session_dir, exist_ok=True)
-        self.filename = os.path.join(self.session_dir, "host_cache.json")
+        self.filename = "host_cache.json"
         self.websocket = websocket
         self.hosts = self.load()
 
