@@ -1,11 +1,9 @@
 import nmap
 from typing import List, Dict
-from services.host_cache import HostCache
 
 class OSDetection:
     def __init__(self):
         self.nmap = nmap.PortScanner()
-        self.host_cache = HostCache('host_cache.json')
 
     def detect_os(self, target_ips: List[str]) -> Dict[str, str]:
         os_dict = {}
@@ -20,12 +18,11 @@ class OSDetection:
                     os_name = 'Unknown'
                 os_dict[target_ip] = os_name
 
-                # Update the host_cache with the OS
-                for host in self.host_cache.hosts:
-                    if host.ip == target_ip:
-                        host.os = os_name
+                # # Update the host_cache with the OS
+                # for host in self.host_cache.hosts:
+                #     if host.ip == target_ip:
+                #         host.os = os_name
             except Exception as e:
                 print(f"An error occurred while detecting OS on {target_ip}: {e}")
 
-        self.host_cache.save()
         return os_dict

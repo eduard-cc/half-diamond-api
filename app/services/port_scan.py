@@ -1,12 +1,10 @@
 import nmap
 from typing import List, Dict
 from models.host import Port
-from services.host_cache import HostCache
 
 class PortScan:
     def __init__(self):
         self.nmap = nmap.PortScanner()
-        self.host_cache = HostCache('host_cache.json')
 
     def scan_ports(self, target_ips: List[str], scan_type: str) -> Dict[str, List[Port]]:
         open_ports_dict = {}
@@ -15,13 +13,13 @@ class PortScan:
                 open_ports = self.scan_target(target_ip, scan_type)
                 open_ports_dict[target_ip] = open_ports
 
-                for host in self.host_cache.hosts:
-                    if host.ip == target_ip:
-                        host.open_ports = open_ports
+                # for host in self.host_cache.hosts:
+                #     if host.ip == target_ip:
+                #         host.open_ports = open_ports
             except Exception as e:
                 print(f"An error occurred while scanning ports on {target_ip}: {e}")
 
-        self.host_cache.save()
+        # self.host_cache.save()
         return open_ports_dict
 
     def scan_target(self, target_ip: str, scan_type: str) -> List[Port]:
