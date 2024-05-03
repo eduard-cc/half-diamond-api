@@ -1,4 +1,4 @@
-from fastapi import APIRouter, HTTPException, WebSocket, BackgroundTasks
+from fastapi import APIRouter, HTTPException, WebSocket, BackgroundTasks, WebSocketDisconnect
 from services.monitor import Monitor
 from models.host import Host
 from typing import List
@@ -14,6 +14,8 @@ async def websocket_endpoint_monitor(websocket: WebSocket):
         monitor.host_cache.websocket = websocket
         while True:
             await websocket.receive_text()
+    except WebSocketDisconnect as e:
+        print(f"WebSocket disconnected: {e}")
     except Exception as e:
         await websocket.send_text(f"Error: {e}")
         await websocket.close()
