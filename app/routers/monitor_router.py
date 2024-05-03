@@ -1,28 +1,34 @@
 from fastapi import APIRouter, HTTPException, WebSocket, BackgroundTasks, WebSocketDisconnect
+from services.host_service import HostService
+from services.event_handler import EventHandler
 from services.monitor import Monitor
 from models.host import Host
 from typing import List
 
 monitor_router = APIRouter()
-monitor = Monitor()
+
+event_handler = EventHandler()
+host_service = HostService(event_handler)
+
+monitor = Monitor(host_service)
 
 @monitor_router.websocket_route("/ws")
 async def websocket_endpoint_monitor(websocket: WebSocket):
     try:
         await websocket.accept()
-        monitor.websocket = websocket
-        monitor.host_cache.websocket = websocket
+        event_handler.websocket = websocket
         while True:
             await websocket.receive_text()
     except WebSocketDisconnect as e:
         print(f"WebSocket disconnected: {e}")
+        event_handler.websocket = None
     except Exception as e:
         await websocket.send_text(f"Error: {e}")
         await websocket.close()
 
 @monitor_router.get("/hosts", response_model=List[Host])
 def get_hosts():
-    return monitor.host_cache.load()
+    return host_service.get_hosts()
 
 @monitor_router.get("/status")
 def get_monitor_status():
