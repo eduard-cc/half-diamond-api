@@ -7,10 +7,10 @@ class Probe():
         self._running: bool = False
 
     async def start(self) -> None:
-        if self._running:
+        if self.is_running():
             raise Exception("Probe is already running")
         self._running = True
-        while self._running:
+        while self.is_running():
             try:
                 self.scan()
                 await asyncio.sleep(10)
@@ -19,7 +19,7 @@ class Probe():
                 raise Exception(e)
 
     def stop(self) -> None:
-        if not self._running:
+        if not self.is_running():
             raise Exception("Probe is not running")
         self._running = False
 
