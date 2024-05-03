@@ -1,29 +1,21 @@
-import asyncio
 import threading
-from datetime import datetime, timedelta
-from typing import Dict
-from fastapi import WebSocket
 from scapy.all import sniff, ARP
-from services.host_cache import HostCache
+from app.services.host_service import HostService
 from utils.host_builder import HostBuilder
-from models.host import Host, Status
+import time
 
 class Monitor:
-    def __init__(self):
+    def __init__(self, host_service: HostService):
         self._running: bool = False
-        self.websocket: WebSocket = None
-        self.host_cache: HostCache = HostCache(self.websocket)
         self.host_builder: HostBuilder = HostBuilder()
-        self.loop: asyncio.AbstractEventLoop = asyncio.get_event_loop()
         self.sniff_thread: threading.Thread = None
-        self.last_update_time: Dict[str, datetime] = {}
-        self.last_websocket_update_time: datetime = datetime.now()
+        self.host_service: HostService = host_service
 
     def start_sniffing(self):
         sniff(filter="arp",
-                prn=self.process_packet,
-                store=0,
-                stop_filter=lambda _: not self.is_running())
+              prn=self.process_packet,
+              store=0,
+              stop_filter=lambda _: not self.is_running())
 
     async def start(self):
         if self._running:
@@ -32,9 +24,6 @@ class Monitor:
             self._running = True
             self.sniff_thread = threading.Thread(target=self.start_sniffing)
             self.sniff_thread.start()
-            while self._running:
-                self.update_host_statuses()
-                await asyncio.sleep(30)
         except Exception as e:
             self._running = False
             raise Exception(e)
@@ -55,27 +44,9 @@ class Monitor:
     def process_packet(self, packet: bytes) -> None:
         if ARP in packet and packet[ARP].op in (1, 2):
             host = self.host_builder.create_host(packet)
-            self.update_host_cache(host)
-            self.send_host_cache()
-
-    def update_host_cache(self, host: Host) -> None:
-        current_time = datetime.now()
-        if (host.mac not in self.last_update_time or
-            current_time - self.last_update_time[host.mac] > timedelta(seconds=1)):
-            updated = self.host_cache.update([host])
-            if updated:
-                self.last_update_time[host.mac] = current_time
-
-    def send_host_cache(self) -> None:
-        current_time = datetime.now()
-        if current_time - self.last_websocket_update_time > timedelta(seconds=1):
-            asyncio.run_coroutine_threadsafe(self.host_cache.send(), self.loop)
-            self.last_websocket_update_time = current_time
-
-    def update_host_statuses(self) -> None:
-        current_time = datetime.now()
-        for host in self.host_cache.hosts:
-            if (current_time - host.last_seen > timedelta(minutes=1) and
-                host.status != Status.Offline):
-                host.status = Status.Offline
-        self.host_cache.save()
+            existing_host = self.host_service.hosts.get(host.mac)
+            if existing_host:
+                if (time.time() - existing_host.last_seen.timestamp()) >= 1:
+                    self.host_service.update_host(host)
+            else:
+                self.host_service.add_host(host)
