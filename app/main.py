@@ -1,10 +1,14 @@
+import logging
 from fastapi import FastAPI
 from fastapi.middleware.cors import CORSMiddleware
 from routers.monitor_router import monitor_router
 from routers.probe_router import probe_router
 from routers.port_scan_router import port_scan_router
 from routers.os_detection_router import os_detection_router
+
 app = FastAPI()
+
+logging.basicConfig(level=logging.INFO)
 
 origins = [
     "http://localhost:5173",
