@@ -2,7 +2,7 @@ import asyncio
 from datetime import datetime
 from typing import Dict, List
 from services.port_scan_type import PortScanType
-from services.event import NewHostEvent, HostConnectedEvent, HostDisconnectedEvent, HostSeenEvent, SynScanEvent, TcpScanEvent, UdpScanEvent
+from services.event import Event, EventType
 from services.event_handler import EventHandler
 from models.host import Host, Port, Status
 
@@ -29,31 +29,31 @@ class HostService:
 
         if existing_host.status == Status.Offline:
             existing_host.status = Status.Online
-            event = HostConnectedEvent(host)
+            event = Event(EventType.HOST_CONNECTED, host)
             asyncio.run(self.event_handler.dispatch(event))
         else:
-            event = HostSeenEvent(host)
+            event = Event(EventType.HOST_SEEN, host)
             asyncio.run(self.event_handler.dispatch(event))
 
     def add_host(self, host: Host) -> None:
         self.hosts[host.mac] = host
-        event = NewHostEvent(host)
+        event = Event(EventType.HOST_NEW, host)
         asyncio.run(self.event_handler.dispatch(event))
 
     def update_ports(self, ports_by_ip: Dict[str, List[Port]], scan_type: PortScanType) -> None:
         ip_to_host = {host.ip: host for host in self.hosts.values()}
 
         for ip, ports in ports_by_ip.items():
-            target_host = ip_to_host.get(ip)
-            if target_host:
-                target_host.open_ports = ports
+            host = ip_to_host.get(ip)
+            if host:
+                host.open_ports = ports
 
                 if scan_type == PortScanType.SYN:
-                    event = SynScanEvent(target_host)
+                    event = Event(EventType.SCAN_SYN, host)
                 elif scan_type == PortScanType.TCP:
-                    event = TcpScanEvent(target_host)
+                    event = Event(EventType.SCAN_TCP, host)
                 elif scan_type == PortScanType.UDP:
-                    event = UdpScanEvent(target_host)
+                    event = Event(EventType.SCAN_UDP, host)
 
                 asyncio.run(self.event_handler.dispatch(event))
 
@@ -62,5 +62,5 @@ class HostService:
             time_since_last_seen = (datetime.now() - host.last_seen).total_seconds()
             if host.status == Status.Online and time_since_last_seen > 60:
                 host.status = Status.Offline
-                event = HostDisconnectedEvent(host)
+                event = Event(EventType.HOST_DISCONNECTED, host)
                 asyncio.run(self.event_handler.dispatch(event))
