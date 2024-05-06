@@ -2,21 +2,25 @@ from enum import Enum
 from models.host import Host
 
 class EventType(Enum):
-    NEW_HOST = "host.new"
+    HOST_NEW = "host.new"
     HOST_SEEN = "host.seen"
     HOST_CONNECTED = "host.connected"
     HOST_DISCONNECTED = "host.disconnected"
+    SCAN_TCP = "scan.tcp"
+    SCAN_SYN = "scan.syn"
+    SCAN_UDP = "scan.udp"
 
 class Event:
-    def __init__(self, event_type: EventType, event_data: Host):
-        self.event_type = event_type
-        self.event_data = event_data
+    def __init__(self, type: EventType, data: Host):
+        self.type = type
+        self.data = data
+
 
 class NewHostEvent(Event):
     def __init__(self, host: Host):
-        super().__init__(EventType.NEW_HOST, host)
+        super().__init__(EventType.HOST_NEW, host)
 
-class HostLastSeenUpdatedEvent(Event):
+class HostSeenEvent(Event):
     def __init__(self, host: Host):
         super().__init__(EventType.HOST_SEEN, host)
 
@@ -27,3 +31,16 @@ class HostConnectedEvent(Event):
 class HostDisconnectedEvent(Event):
     def __init__(self, host: Host):
         super().__init__(EventType.HOST_DISCONNECTED, host)
+
+
+class TcpScanEvent(Event):
+    def __init__(self, host: Host):
+        super().__init__(EventType.SCAN_TCP, host)
+
+class SynScanEvent(Event):
+    def __init__(self, host: Host):
+        super().__init__(EventType.SCAN_SYN, host)
+
+class UdpScanEvent(Event):
+    def __init__(self, host: Host):
+        super().__init__(EventType.SCAN_UDP, host)
