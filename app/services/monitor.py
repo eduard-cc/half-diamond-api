@@ -1,6 +1,6 @@
 import threading
 from scapy.all import sniff, ARP
-from app.services.host_service import HostService
+from services.host_service import HostService
 from utils.host_builder import HostBuilder
 import time
 
