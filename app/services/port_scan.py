@@ -1,53 +1,51 @@
+import logging
 import nmap
-from typing import List, Dict
+from typing import Any, List, Dict
+from services.host_service import HostService
 from models.host import Port
+from services.port_scan_type import PortScanType
 
 class PortScan:
-    def __init__(self):
+    def __init__(self, host_service: HostService):
         self.nmap = nmap.PortScanner()
+        self.host_service: HostService = host_service
 
-    def scan_ports(self, target_ips: List[str], scan_type: str) -> Dict[str, List[Port]]:
-        open_ports_dict = {}
+    def scan_ports(self, target_ips: List[str], scan_type: PortScanType) -> Dict[str, List[Port]]:
+        ports_by_ip: Dict[str, List[Port]] = {}
+
         for target_ip in target_ips:
-            try:
-                open_ports = self.scan_target(target_ip, scan_type)
-                open_ports_dict[target_ip] = open_ports
+            open_ports = self.scan_target_ip(target_ip, scan_type)
+            if open_ports is not None:
+                ports_by_ip[target_ip] = open_ports
 
-                # for host in self.host_cache.hosts:
-                #     if host.ip == target_ip:
-                #         host.open_ports = open_ports
-            except Exception as e:
-                print(f"An error occurred while scanning ports on {target_ip}: {e}")
+        self.host_service.update_ports(ports_by_ip, scan_type)
+        return ports_by_ip
 
-        # self.host_cache.save()
-        return open_ports_dict
+    def scan_target_ip(self, target_ip: str, scan_type: PortScanType) -> List[Port] | None:
+        try:
+            scan_result = self.nmap.scan(target_ip, scan_type.value)
+        except nmap.PortScannerError as e:
+            logging.error(f"An error occurred while scanning ports on {target_ip}: {e}")
+            return None
 
-    def scan_target(self, target_ip: str, scan_type: str) -> List[Port]:
-        arguments = self.get_scan_arguments(scan_type)
-        scan_result = self.nmap.scan(target_ip, arguments)
-        open_ports = []
-        if 'tcp' in scan_result['scan'].get(target_ip, {}):
-            for port, port_info in scan_result['scan'][target_ip]['tcp'].items():
-                if port_info['state'] == 'open':
-                    open_ports.append(Port(
-                        port=int(port),
-                        protocol='tcp',
-                        state=port_info['state'],
-                        name=port_info.get('name'),
-                        product=port_info.get('product'),
-                        extrainfo=port_info.get('extrainfo'),
-                        reason=port_info.get('reason'),
-                        version=port_info.get('version'),
-                        conf=port_info.get('conf')
-                    ))
+        open_ports: List[Port] = []
+        tcp_scan: Dict[int, Dict[str, Any]] = (
+            scan_result['scan']
+            .get(target_ip, {})
+            .get('tcp', {})
+        )
+
+        for port, port_info in tcp_scan.items():
+            if port_info.get('state') != 'open':
+                open_ports.append(Port(
+                    port=int(port),
+                    protocol='tcp',
+                    state=port_info['state'],
+                    name=port_info.get('name'),
+                    product=port_info.get('product'),
+                    extrainfo=port_info.get('extrainfo'),
+                    reason=port_info.get('reason'),
+                    version=port_info.get('version'),
+                    conf=port_info.get('conf')
+                ))
         return open_ports
-
-    def get_scan_arguments(self, scan_type: str) -> str:
-        if scan_type == 'TCP':
-            return '-sT'
-        elif scan_type == 'SYN':
-            return '-sS'
-        elif scan_type == 'UDP':
-            return '-sU'
-        else:
-            raise ValueError(f"Invalid scan type: {scan_type}")
