@@ -20,5 +20,5 @@ class EventHandler:
         for handler in self.handlers.get(type(event), []):
             await handler(event)
         if self.websocket:
-            data = json.dumps(event.data.model_dump(), cls=DateTimeEncoder)
+            data = json.dumps(event.to_dict(), cls=DateTimeEncoder)
             await self.websocket.send_text(data)
