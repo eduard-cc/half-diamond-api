@@ -11,7 +11,7 @@ Half Diamond uses [Scapy](https://scapy.net/) for network packet manipulation. D
 
 #### Nmap
 
-Half Diamond also uses [python-nmap](https://pypi.org/project/python-nmap/), a Python wrapper for [Nmap](https://nmap.org/). Download and install Nmap from [here](https://nmap.org/download.html).
+Half Diamond also uses [python-nmap](https://pypi.org/project/python-nmap/), a Python wrapper that requires [Nmap](https://nmap.org/) to be installed locally. Download and install it from [here](https://nmap.org/download.html).
 
 ### 2. Python Requirements
 
