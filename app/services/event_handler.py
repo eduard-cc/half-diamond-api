@@ -16,7 +16,7 @@ class EventHandler:
         self.handlers[event_class].append(handler)
 
     async def dispatch(self, event: Event):
-        logging.info(f"Dispatching event: {type(event).__name__} for host: {event.data.mac}")
+        logging.info(f"Dispatching event: {event.type} for host: {event.data.mac}")
         for handler in self.handlers.get(type(event), []):
             await handler(event)
         if self.websocket:
