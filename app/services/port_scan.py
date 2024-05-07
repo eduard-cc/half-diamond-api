@@ -13,26 +13,26 @@ class PortScan:
     def scan_ports(self, target_ips: List[str], scan_type: PortScanType) -> Dict[str, List[Port]]:
         ports_by_ip: Dict[str, List[Port]] = {}
 
-        for target_ip in target_ips:
-            open_ports = self.scan_target_ip(target_ip, scan_type)
+        for ip in target_ips:
+            open_ports = self.scan_ip(ip, scan_type)
             if open_ports is not None:
-                ports_by_ip[target_ip] = open_ports
+                ports_by_ip[ip] = open_ports
 
         self.host_service.update_ports(ports_by_ip, scan_type)
         return ports_by_ip
 
-    def scan_target_ip(self, target_ip: str, scan_type: PortScanType) -> List[Port] | None:
+    def scan_ip(self, ip: str, scan_type: PortScanType) -> List[Port] | None:
         try:
-            scan_result = self.nmap.scan(hosts=target_ip, arguments=scan_type.value)
+            scan_result = self.nmap.scan(hosts=ip, arguments=scan_type.value)
         except nmap.PortScannerError as e:
-            logging.error(f"An error occurred while scanning ports on {target_ip}: {e}")
+            logging.error(f"An error occurred while scanning ports on {ip}: {e}")
             return None
 
         open_ports: List[Port] = []
-        scan: Dict[str, Dict[str, Any]] = scan_result['scan'].get(target_ip, {})
+        scan_data: Dict[str, Dict[str, Any]] = scan_result['scan'].get(ip, {})
 
         for protocol in ['tcp', 'udp']:
-            protocol_scan = scan.get(protocol, {})
+            protocol_scan = scan_data.get(protocol, {})
             for port, port_info in protocol_scan.items():
                 if port_info.get('state') == 'open':
                     open_ports.append(Port(
