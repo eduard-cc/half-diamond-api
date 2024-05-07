@@ -15,7 +15,7 @@ class HostService:
     async def schedule_offline_host_check(self) -> None:
         while True:
             self.check_and_update_offline_hosts()
-            await asyncio.sleep(60)
+            await asyncio.sleep(30)
 
     def get_hosts(self) -> List[Host]:
         return list(self.hosts.values())
@@ -59,8 +59,8 @@ class HostService:
 
     def check_and_update_offline_hosts(self) -> None:
         for host in self.hosts.values():
-            time_since_last_seen = (datetime.now() - host.last_seen).total_seconds()
-            if host.status == Status.Online and time_since_last_seen > 60:
+            seconds_since_last_seen = (datetime.now() - host.last_seen).total_seconds()
+            if host.status == Status.Online and seconds_since_last_seen > 60:
                 host.status = Status.Offline
                 event = Event(EventType.HOST_DISCONNECTED, host)
-                asyncio.run(self.event_handler.dispatch(event))
+                asyncio.create_task(self.event_handler.dispatch(event))
