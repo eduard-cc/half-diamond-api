@@ -23,29 +23,27 @@ class PortScan:
 
     def scan_target_ip(self, target_ip: str, scan_type: PortScanType) -> List[Port] | None:
         try:
-            scan_result = self.nmap.scan(target_ip, scan_type.value)
+            scan_result = self.nmap.scan(hosts=target_ip, arguments=scan_type.value)
         except nmap.PortScannerError as e:
             logging.error(f"An error occurred while scanning ports on {target_ip}: {e}")
             return None
 
         open_ports: List[Port] = []
-        tcp_scan: Dict[int, Dict[str, Any]] = (
-            scan_result['scan']
-            .get(target_ip, {})
-            .get('tcp', {})
-        )
+        scan: Dict[str, Dict[str, Any]] = scan_result['scan'].get(target_ip, {})
 
-        for port, port_info in tcp_scan.items():
-            if port_info.get('state') != 'open':
-                open_ports.append(Port(
-                    port=int(port),
-                    protocol='tcp',
-                    state=port_info['state'],
-                    name=port_info.get('name'),
-                    product=port_info.get('product'),
-                    extrainfo=port_info.get('extrainfo'),
-                    reason=port_info.get('reason'),
-                    version=port_info.get('version'),
-                    conf=port_info.get('conf')
-                ))
+        for protocol in ['tcp', 'udp']:
+            protocol_scan = scan.get(protocol, {})
+            for port, port_info in protocol_scan.items():
+                if port_info.get('state') == 'open':
+                    open_ports.append(Port(
+                        port=int(port),
+                        protocol=protocol,
+                        state=port_info['state'],
+                        name=port_info.get('name'),
+                        product=port_info.get('product'),
+                        extrainfo=port_info.get('extrainfo'),
+                        reason=port_info.get('reason'),
+                        version=port_info.get('version'),
+                        conf=port_info.get('conf')
+                    ))
         return open_ports
