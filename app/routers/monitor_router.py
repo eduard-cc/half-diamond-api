@@ -16,7 +16,6 @@ async def websocket_endpoint_monitor(websocket: WebSocket):
         print(f"WebSocket disconnected: {e}")
         session.event_handler.websocket = None
     except Exception as e:
-        await websocket.send_text(f"Error: {e}")
         await websocket.close()
 
 @monitor_router.get("/hosts", response_model=List[Host])
