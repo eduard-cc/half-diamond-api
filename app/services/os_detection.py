@@ -1,28 +1,34 @@
 import nmap
 from typing import List, Dict
+from services.host_service import HostService
+import logging
 
 class OSDetection:
-    def __init__(self):
+    def __init__(self, host_service: HostService):
         self.nmap = nmap.PortScanner()
+        self.host_service = host_service
 
     def detect_os(self, target_ips: List[str]) -> Dict[str, str]:
-        os_dict = {}
-        for target_ip in target_ips:
-            try:
-                scan_result = self.nmap.scan(target_ip, arguments='-O')
-                if (target_ip in scan_result['scan'] and
-                    'osmatch' in scan_result['scan'][target_ip] and
-                    scan_result['scan'][target_ip]['osmatch']):
-                    os_name = scan_result['scan'][target_ip]['osmatch'][0]['name']
-                else:
-                    os_name = 'Unknown'
-                os_dict[target_ip] = os_name
+        os_by_ip: Dict[str, str] = {}
 
-                # # Update the host_cache with the OS
-                # for host in self.host_cache.hosts:
-                #     if host.ip == target_ip:
-                #         host.os = os_name
-            except Exception as e:
-                print(f"An error occurred while detecting OS on {target_ip}: {e}")
+        for ip in target_ips:
+            os = self.detect_target_ip(ip)
+            if os is not None and os != 'Unknown':
+                os_by_ip[ip] = os
 
-        return os_dict
+        self.host_service.update_os(os_by_ip)
+        return os_by_ip
+
+    def detect_target_ip(self, ip: str) -> str | None:
+        try:
+            scan_result = self.nmap.scan(hosts=ip, arguments='-O')
+        except Exception as e:
+            logging.error(f"An error occurred while detecting OS on {ip}: {e}")
+            return None
+
+        scan_data = scan_result.get('scan', {}).get(ip, {}).get('osmatch')
+
+        if not scan_data:
+            return 'Unknown'
+
+        return scan_data[0]['name']
