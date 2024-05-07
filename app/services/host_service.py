@@ -57,6 +57,16 @@ class HostService:
 
                 asyncio.run(self.event_handler.dispatch(event))
 
+    def update_os(self, os_by_ip: Dict[str, str]) -> None:
+        ip_to_host = {host.ip: host for host in self.hosts.values()}
+
+        for ip, os in os_by_ip.items():
+            host = ip_to_host.get(ip)
+            if host:
+                host.os = os
+                event = Event(EventType.OS_DETECTED, host)
+                asyncio.run(self.event_handler.dispatch(event))
+
     def check_and_update_offline_hosts(self) -> None:
         for host in self.hosts.values():
             seconds_since_last_seen = (datetime.now() - host.last_seen).total_seconds()
