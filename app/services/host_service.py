@@ -46,7 +46,10 @@ class HostService:
         for ip, ports in ports_by_ip.items():
             host = ip_to_host.get(ip)
             if host:
-                host.open_ports = ports
+                for port in ports:
+                    host.open_ports = host.open_ports or []
+                    if port not in host.open_ports:
+                        host.open_ports.append(port)
 
                 if scan_type == PortScanType.SYN:
                     event = Event(EventType.SCAN_SYN, host)
