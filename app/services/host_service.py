@@ -29,15 +29,15 @@ class HostService:
 
         if existing_host.status == Status.Offline:
             existing_host.status = Status.Online
-            event = Event(EventType.HOST_CONNECTED, host)
+            event = Event(type=EventType.HOST_CONNECTED, data=host)
             asyncio.run(self.event_handler.dispatch(event))
         else:
-            event = Event(EventType.HOST_SEEN, host)
+            event = Event(type=EventType.HOST_SEEN, data=host)
             asyncio.run(self.event_handler.dispatch(event))
 
     def add_host(self, host: Host) -> None:
         self.hosts[host.mac] = host
-        event = Event(EventType.HOST_NEW, host)
+        event = Event(type=EventType.HOST_NEW, data=host)
         asyncio.run(self.event_handler.dispatch(event))
 
     def update_ports(self, ports_by_ip: Dict[str, List[Port]], scan_type: PortScanType) -> None:
@@ -52,11 +52,11 @@ class HostService:
                         host.open_ports.append(port)
 
                 if scan_type == PortScanType.SYN:
-                    event = Event(EventType.SCAN_SYN, host)
+                    event = Event(type=EventType.SCAN_SYN, data=host)
                 elif scan_type == PortScanType.TCP:
-                    event = Event(EventType.SCAN_TCP, host)
+                    event = Event(type=EventType.SCAN_TCP, data=host)
                 elif scan_type == PortScanType.UDP:
-                    event = Event(EventType.SCAN_UDP, host)
+                    event = Event(type=EventType.SCAN_UDP, data=host)
 
                 asyncio.run(self.event_handler.dispatch(event))
 
@@ -67,7 +67,7 @@ class HostService:
             host = ip_to_host.get(ip)
             if host:
                 host.os = os
-                event = Event(EventType.OS_DETECTED, host)
+                event = Event(type=EventType.OS_DETECTED, data=host)
                 asyncio.run(self.event_handler.dispatch(event))
 
     def check_and_update_offline_hosts(self) -> None:
@@ -75,5 +75,5 @@ class HostService:
             seconds_since_last_seen = (datetime.now() - host.last_seen).total_seconds()
             if host.status == Status.Online and seconds_since_last_seen > 60:
                 host.status = Status.Offline
-                event = Event(EventType.HOST_DISCONNECTED, host)
+                event = Event(type=EventType.HOST_DISCONNECTED, data=host)
                 asyncio.create_task(self.event_handler.dispatch(event))
