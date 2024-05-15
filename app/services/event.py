@@ -1,6 +1,6 @@
 from datetime import datetime, timezone
 from enum import Enum
-from pydantic import BaseModel
+from pydantic import BaseModel, Field
 from models.host import Host
 
 class EventType(str, Enum):
@@ -14,7 +14,7 @@ class EventType(str, Enum):
     OS_DETECTED = "os.detected"
 
 class Event(BaseModel):
-    time: datetime = datetime.now(timezone.utc)
+    time: datetime = Field(default_factory=lambda: datetime.now(timezone.utc))
     type: EventType
     data: Host
 
