@@ -11,7 +11,7 @@ class EventHandler:
         self.events: List[Event] = []
 
     async def dispatch(self, event: Event):
-        self.events.append(event)
+        self.events.insert(0, event)
         if self.websocket:
             logging.info(f"Dispatching event: {event.type} for host: {event.data.mac}")
             data = json.dumps(event.model_dump(), cls=DateTimeEncoder)
