@@ -1,8 +1,9 @@
 from datetime import datetime, timezone
 from enum import Enum
+from pydantic import BaseModel
 from models.host import Host
 
-class EventType(Enum):
+class EventType(str, Enum):
     HOST_NEW = "host.new"
     HOST_SEEN = "host.seen"
     HOST_CONNECTED = "host.connected"
@@ -12,15 +13,12 @@ class EventType(Enum):
     SCAN_UDP = "scan.udp"
     OS_DETECTED = "os.detected"
 
-class Event:
-    def __init__(self, type: EventType, data: Host):
-        self.time = datetime.now(timezone.utc)
-        self.type = type
-        self.data = data
+class Event(BaseModel):
+    time: datetime = datetime.now(timezone.utc)
+    type: EventType
+    data: Host
 
-    def to_dict(self):
-        return {
-            "time": self.time.isoformat(),
-            "type": self.type.value,
-            "data": self.data.model_dump()
+    class Config:
+        json_encoders = {
+            datetime: lambda v: v.isoformat(),
         }
