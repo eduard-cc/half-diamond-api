@@ -1,3 +1,4 @@
+from datetime import datetime, timezone
 from enum import Enum
 from models.host import Host
 
@@ -13,11 +14,13 @@ class EventType(Enum):
 
 class Event:
     def __init__(self, type: EventType, data: Host):
+        self.time = datetime.now(timezone.utc)
         self.type = type
         self.data = data
 
     def to_dict(self):
         return {
+            "time": self.time.isoformat(),
             "type": self.type.value,
             "data": self.data.model_dump()
         }
