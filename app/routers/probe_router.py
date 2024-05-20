@@ -5,7 +5,7 @@ probe_router = APIRouter()
 
 @probe_router.get("/status")
 def get_probe_status():
-    return {"running": session.probe.is_running()}
+    return {"running": session.probe.is_running}
 
 @probe_router.post("/start")
 async def start_probe(background_tasks: BackgroundTasks):

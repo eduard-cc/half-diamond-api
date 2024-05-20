@@ -1,43 +1,38 @@
-import threading
+from threading import Thread
 from scapy.all import sniff, ARP
 from services.host_service import HostService
 import time
 
 class Monitor:
     def __init__(self, host_service: HostService):
-        self._running: bool = False
-        self.sniff_thread: threading.Thread = None
+        self.is_running: bool = False
+        self.sniff_thread: Thread = None
         self.host_service: HostService = host_service
 
     def start_sniffing(self):
         sniff(filter="arp",
               prn=self.process_packet,
               store=0,
-              stop_filter=lambda _: not self.is_running())
+              stop_filter=lambda _: not self.is_running)
 
     async def start(self):
-        if self._running:
+        if self.is_running:
             raise Exception("Monitor is already running")
         try:
-            self._running = True
-            self.sniff_thread = threading.Thread(target=self.start_sniffing)
+            self.is_running = True
+            self.sniff_thread = Thread(target=self.start_sniffing)
             self.sniff_thread.start()
         except Exception as e:
-            self._running = False
+            self.is_running = False
             raise Exception(e)
 
     def stop(self):
-        if not self._running:
+        if not self.is_running:
             raise Exception("Monitor is not running")
-        try:
-            self._running = False
-            if self.sniff_thread is not None:
-                self.sniff_thread.join()
-        except Exception as e:
-            raise Exception(e)
+        self.is_running = False
+        if self.sniff_thread is not None:
+            self.sniff_thread.join()
 
-    def is_running(self) -> bool:
-        return self._running
 
     def process_packet(self, packet: bytes) -> None:
         if ARP in packet and packet[ARP].op in (1, 2):

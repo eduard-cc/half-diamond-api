@@ -11,7 +11,7 @@ def get_hosts():
 
 @monitor_router.get("/status")
 def get_monitor_status():
-    return {"running": session.monitor.is_running()}
+    return {"running": session.monitor.is_running}
 
 @monitor_router.post("/start")
 async def start_monitor(background_tasks: BackgroundTasks):
