@@ -1,5 +1,6 @@
 from datetime import datetime, timezone
 from enum import Enum
+from typing import List
 from pydantic import BaseModel, Field
 from models.host import Host
 
@@ -12,11 +13,13 @@ class EventType(str, Enum):
     SCAN_SYN = "scan.syn"
     SCAN_UDP = "scan.udp"
     OS_DETECTED = "os.detected"
+    ARP_SPOOF_STARTED = "arp.spoof.started"
+    ARP_SPOOF_STOPPED = "arp.spoof.stopped"
 
 class Event(BaseModel):
     time: datetime = Field(default_factory=lambda: datetime.now(timezone.utc))
     type: EventType
-    data: Host
+    data: Host | List[Host]
 
     class Config:
         json_encoders = {
