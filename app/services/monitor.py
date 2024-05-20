@@ -1,13 +1,11 @@
 import threading
 from scapy.all import sniff, ARP
 from services.host_service import HostService
-from utils.host_builder import HostBuilder
 import time
 
 class Monitor:
     def __init__(self, host_service: HostService):
         self._running: bool = False
-        self.host_builder: HostBuilder = HostBuilder()
         self.sniff_thread: threading.Thread = None
         self.host_service: HostService = host_service
 
@@ -43,7 +41,7 @@ class Monitor:
 
     def process_packet(self, packet: bytes) -> None:
         if ARP in packet and packet[ARP].op in (1, 2):
-            host = self.host_builder.create_host(packet)
+            host = self.host_service.create_host(packet)
             existing_host = self.host_service.hosts.get(host.mac)
             if existing_host:
                 if (time.time() - existing_host.last_seen.timestamp()) >= 1:

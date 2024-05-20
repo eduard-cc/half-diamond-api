@@ -5,12 +5,19 @@ from services.port_scan_type import PortScanType
 from services.event import Event, EventType
 from services.event_handler import EventHandler
 from models.host import Host, Port, Status
+from scapy.all import ARP, conf
+import socket
+from getmac import get_mac_address
+from manuf import manuf, MacParser
 
 class HostService:
     def __init__(self, event_handler: EventHandler):
         self.hosts: Dict[str, Host] = {}
         self.event_handler: EventHandler = event_handler
         self.check_coroutine: asyncio.Task = asyncio.create_task(self.check_and_update_offline_hosts())
+        self.mac_parser: MacParser = manuf.MacParser()
+        self.local_default_interface_mac: str | None = get_mac_address()
+        self.local_hostname: str = socket.gethostname()
 
     async def check_and_update_offline_hosts(self) -> None:
         while True:
@@ -28,6 +35,28 @@ class HostService:
 
     def is_new_host(self, host: Host) -> bool:
         return host.mac not in self.hosts
+
+    def create_host(self, packet: bytes) -> Host:
+        vendor = self.mac_parser.get_manuf_long(packet[ARP].hwsrc)
+        if vendor is None:
+            vendor = 'Unknown'
+
+        gateway_ip = conf.route.route("0.0.0.0")[2]
+        hostname = None
+        if packet[ARP].psrc == gateway_ip:
+            hostname = 'Gateway'
+        elif (self.local_default_interface_mac is not None and
+              packet[ARP].hwsrc == self.local_default_interface_mac):
+            hostname = self.local_hostname
+
+        return Host(
+            ip=packet[ARP].psrc,
+            mac=packet[ARP].hwsrc,
+            vendor=vendor,
+            last_seen=datetime.now(),
+            status=Status.Online,
+            name=hostname
+        )
 
     def update_host(self, host: Host) -> None:
         existing_host = self.hosts[host.mac]
