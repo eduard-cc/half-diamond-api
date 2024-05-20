@@ -1,4 +1,3 @@
-import logging
 import nmap
 from typing import Any, List, Dict
 from services.host_service import HostService
@@ -10,7 +9,8 @@ class PortScan:
         self.nmap = nmap.PortScanner()
         self.host_service: HostService = host_service
 
-    def scan_ports(self, target_ips: List[str], scan_type: PortScanType) -> Dict[str, List[Port]]:
+    def scan_ports(self, target_ips: List[str],
+                   scan_type: PortScanType) -> Dict[str, List[Port]]:
         ports_by_ip: Dict[str, List[Port]] = {}
 
         for ip in target_ips:
@@ -25,7 +25,6 @@ class PortScan:
         try:
             scan_result = self.nmap.scan(hosts=ip, arguments=scan_type.value)
         except nmap.PortScannerError as e:
-            logging.error(f"An error occurred while scanning ports on {ip}: {e}")
             return None
 
         open_ports: List[Port] = []

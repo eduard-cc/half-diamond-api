@@ -1,7 +1,6 @@
 import nmap
 from typing import List, Dict
 from services.host_service import HostService
-import logging
 
 class OSDetection:
     def __init__(self, host_service: HostService):
@@ -23,12 +22,9 @@ class OSDetection:
         try:
             scan_result = self.nmap.scan(hosts=ip, arguments='-O')
         except Exception as e:
-            logging.error(f"An error occurred while detecting OS on {ip}: {e}")
             return None
 
         scan_data = scan_result.get('scan', {}).get(ip, {}).get('osmatch')
-
         if not scan_data:
             return 'Unknown'
-
         return scan_data[0]['name']

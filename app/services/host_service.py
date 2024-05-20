@@ -14,15 +14,18 @@ class HostService:
     def __init__(self, event_handler: EventHandler):
         self.hosts: Dict[str, Host] = {}
         self.event_handler: EventHandler = event_handler
-        self.check_coroutine: asyncio.Task = asyncio.create_task(self.check_and_update_offline_hosts())
+        self.check_coroutine: asyncio.Task = asyncio.create_task(
+            self.check_and_update_offline_hosts())
         self.mac_parser: MacParser = manuf.MacParser()
-        self.local_default_interface_mac: str | None = get_mac_address()
+        self.local_mac: str | None = get_mac_address()
         self.local_hostname: str = socket.gethostname()
+        self.gateway_ip = conf.route.route("0.0.0.0")[2]
 
     async def check_and_update_offline_hosts(self) -> None:
         while True:
             for host in self.hosts.values():
-                seconds_since_last_seen = (datetime.now() - host.last_seen).total_seconds()
+                seconds_since_last_seen = (
+                    datetime.now() - host.last_seen).total_seconds()
 
                 if host.status == Status.Online and seconds_since_last_seen > 60:
                     host.status = Status.Offline
@@ -41,12 +44,11 @@ class HostService:
         if vendor is None:
             vendor = 'Unknown'
 
-        gateway_ip = conf.route.route("0.0.0.0")[2]
         hostname = None
-        if packet[ARP].psrc == gateway_ip:
+        if packet[ARP].psrc == self.gateway_ip:
             hostname = 'Gateway'
-        elif (self.local_default_interface_mac is not None and
-              packet[ARP].hwsrc == self.local_default_interface_mac):
+        elif (self.local_mac is not None and
+              packet[ARP].hwsrc == self.local_mac):
             hostname = self.local_hostname
 
         return Host(
@@ -75,7 +77,8 @@ class HostService:
         event = Event(type=EventType.HOST_NEW, data=host)
         asyncio.run(self.event_handler.dispatch(event))
 
-    def update_ports(self, ports_by_ip: Dict[str, List[Port]], scan_type: PortScanType) -> None:
+    def update_ports(self, ports_by_ip: Dict[str, List[Port]],
+                     scan_type: PortScanType) -> None:
         ip_to_host = {host.ip: host for host in self.hosts.values()}
 
         for ip, ports in ports_by_ip.items():
