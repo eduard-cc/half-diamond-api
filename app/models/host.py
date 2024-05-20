@@ -1,6 +1,6 @@
 from datetime import datetime
 from enum import Enum
-from typing import List, Optional
+from typing import List
 from pydantic import BaseModel
 
 class Status(str, Enum):
@@ -11,19 +11,19 @@ class Port(BaseModel):
     port: int
     protocol: str
     state: str
-    name: Optional[str] = None
-    product: Optional[str] = None
-    extrainfo: Optional[str] = None
-    reason: Optional[str] = None
-    version: Optional[str] = None
-    conf: Optional[str] = None
+    name: str | None = None
+    product: str | None = None
+    extrainfo: str | None = None
+    reason: str | None = None
+    version: str | None = None
+    conf: str | None = None
 
 class Host(BaseModel):
     ip: str
     mac: str
     vendor: str
-    name: str
     last_seen: datetime
     status: Status
-    os: Optional[str] = None
-    open_ports: Optional[List[Port]] = None
+    name: str | None = None
+    os: str | None = None
+    open_ports: List[Port] | None = None
