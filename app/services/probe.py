@@ -4,32 +4,9 @@ import socket
 
 class Probe():
     def __init__(self):
-        self._running: bool = False
-
-    async def start(self) -> None:
-        if self.is_running():
-            raise Exception("Probe is already running")
-        self._running = True
-        while self.is_running():
-            try:
-                self.scan()
-                await asyncio.sleep(10)
-            except Exception as e:
-                self._running = False
-                raise Exception(e)
-
-    def stop(self) -> None:
-        if not self.is_running():
-            raise Exception("Probe is not running")
-        self._running = False
-
-    def is_running(self) -> bool:
-        return self._running
-
-    def scan(self) -> None:
-        subnet = self.get_subnet()
-        arp_request = self.create_arp_request(subnet)
-        self.send_arp_request(arp_request)
+        self.is_running: bool = False
+        self.THROTTLE: int = 10
+        self.subnet: str = self.get_subnet()
 
     def get_subnet(self) -> str:
         with socket.socket(socket.AF_INET, socket.SOCK_DGRAM) as s:
@@ -37,8 +14,22 @@ class Probe():
             ip = s.getsockname()[0]
         return ip.rsplit('.', 1)[0] + '.0/24'
 
-    def create_arp_request(self, subnet:str) -> Ether:
-        return Ether(dst="ff:ff:ff:ff:ff:ff") / ARP(pdst=subnet)
+    async def start(self) -> None:
+        if self.is_running:
+            raise Exception("Probe is already running")
+        self.is_running = True
+        while self.is_running:
+            try:
+                ether = Ether(dst="ff:ff:ff:ff:ff:ff")
+                arp = ARP(pdst=self.subnet)
+                arp_request = ether / arp
+                srp(arp_request, timeout=3, verbose=0)
+                await asyncio.sleep(self.THROTTLE)
+            except Exception as e:
+                self.is_running = False
+                raise Exception(e)
 
-    def send_arp_request(self, arp_request: Ether) -> None:
-        srp(arp_request, timeout=3, verbose=0)
+    def stop(self) -> None:
+        if not self.is_running:
+            raise Exception("Probe is not running")
+        self.is_running = False
