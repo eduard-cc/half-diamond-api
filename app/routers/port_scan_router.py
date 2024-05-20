@@ -9,6 +9,6 @@ port_scan_router = APIRouter()
 
 @port_scan_router.patch("/ports", response_model=Dict[str, List[Port]])
 def scan_ports(target_ips: List[str],
-               scan_type: PortScanType = Query(default = PortScanType.SYN)):
+               type: PortScanType = Query(default = PortScanType.SYN)):
     port_scanner = PortScan(session.host_service)
-    return port_scanner.scan_ports(target_ips, scan_type)
+    return port_scanner.scan_ports(target_ips, type)
