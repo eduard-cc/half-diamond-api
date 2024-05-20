@@ -2,8 +2,8 @@ from threading import Lock, Thread, Event as ThreadingEvent
 from scapy.all import ARP, send, conf
 from scapy.layers.l2 import getmacbyip
 from typing import List
-from app.models.host import Host
-from app.services.host_service import HostService
+from models.host import Host
+from services.host_service import HostService
 from services.event import Event, EventType
 import socket
 
