@@ -1,3 +1,4 @@
+from services.arp_spoof import ArpSpoof
 from services.monitor import Monitor
 from services.probe import Probe
 from services.event_handler import EventHandler
@@ -9,5 +10,6 @@ class Session:
         self.host_service = HostService(self.event_handler)
         self.monitor = Monitor(self.host_service)
         self.probe = Probe()
+        self.arp_spoof = ArpSpoof(self.host_service)
 
 session = Session()
