@@ -36,6 +36,13 @@ class HostService:
     def get_hosts(self) -> List[Host]:
         return list(self.hosts.values())
 
+    def get_hosts_from_ips(self, ips: List[str]) -> List[Host]:
+        hosts = []
+        for host in self.hosts.values():
+            if host.ip in ips:
+                hosts.append(host)
+        return hosts
+
     def is_new_host(self, host: Host) -> bool:
         return host.mac not in self.hosts
 
