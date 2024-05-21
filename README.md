@@ -15,14 +15,14 @@ Half Diamond also uses [python-nmap](https://pypi.org/project/python-nmap/), a P
 
 ### 2. Python Requirements
 
-Before installing the Python requirements, it's recommended to create a virtual environment:
+Before installing the requirements, it's recommended to create a virtual environment:
 
 ```bash
 python3 -m venv env
 source env/bin/activate  # On Windows, use `env\Scripts\activate`
 ```
 
-After activating the virtual environment, install the Python requirements:
+After activating the virtual environment, install the requirements:
 
 ```bash
 pip install -r requirements.txt
@@ -33,6 +33,6 @@ pip install -r requirements.txt
 Once all dependencies are installed, start the development server:
 
 ```bash
-cd app
+cd src
 uvicorn main:app --reload
 ```
