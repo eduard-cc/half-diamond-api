@@ -1,9 +1,9 @@
 from typing import Dict, List
 from fastapi import APIRouter, Query
-from services.port_scan_type import PortScanType
-from models.host import Port
-from services.port_scan import PortScan
-from services.session import session
+from modules.port_scan.model import PortScanType
+from modules.port_scan.service import PortScan
+from core.host.model import Port
+from core.session_setup import session
 
 port_scan_router = APIRouter()
 

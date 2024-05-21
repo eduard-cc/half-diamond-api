@@ -1,11 +1,12 @@
 from fastapi import FastAPI
 from fastapi.middleware.cors import CORSMiddleware
-from routers.monitor_router import monitor_router
-from routers.probe_router import probe_router
-from routers.arp_spoof_router import arp_spoof_router
-from routers.port_scan_router import port_scan_router
-from routers.os_detection_router import os_detection_router
-from routers.event_router import event_router
+from modules.monitor.router import monitor_router
+from modules.probe.router import probe_router
+from modules.arp_spoof.router import arp_spoof_router
+from modules.port_scan.router import port_scan_router
+from modules.os_detect.router import os_detection_router
+from core.host.router import host_router
+from core.event.router import event_router
 
 app = FastAPI()
 
@@ -22,6 +23,7 @@ app.add_middleware(
 )
 
 app.include_router(monitor_router, prefix="/monitor")
+app.include_router(host_router, prefix="/hosts")
 app.include_router(probe_router, prefix="/probe")
 app.include_router(arp_spoof_router, prefix="/arp-spoof")
 app.include_router(event_router, prefix="/events")

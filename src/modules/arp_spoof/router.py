@@ -1,6 +1,6 @@
 from typing import List
 from fastapi import APIRouter, HTTPException, BackgroundTasks
-from services.session import session
+from core.session_setup import session
 
 arp_spoof_router = APIRouter()
 

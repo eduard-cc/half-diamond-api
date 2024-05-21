@@ -1,5 +1,5 @@
 from fastapi import APIRouter, BackgroundTasks, HTTPException
-from services.session import session
+from core.session_setup import session
 
 probe_router = APIRouter()
 

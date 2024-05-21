@@ -1,7 +1,7 @@
 from fastapi import APIRouter, HTTPException, BackgroundTasks
-from models.host import Host
+from core.host.model import Host
 from typing import List
-from services.session import session
+from core.session_setup import session
 
 monitor_router = APIRouter()
 

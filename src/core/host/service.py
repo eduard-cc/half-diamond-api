@@ -1,10 +1,10 @@
 import asyncio
 from datetime import datetime
 from typing import Dict, List
-from services.port_scan_type import PortScanType
-from services.event import Event, EventType
-from services.event_handler import EventHandler
-from models.host import Host, Port, Status
+from modules.port_scan.model import PortScanType
+from core.event.model import Event, EventType
+from core.event.handler import EventHandler
+from core.host.model import Host, Port, Status
 from scapy.all import ARP, conf
 import socket
 from getmac import get_mac_address
@@ -19,7 +19,7 @@ class HostService:
         self.mac_parser: MacParser = manuf.MacParser()
         self.local_mac: str | None = get_mac_address()
         self.local_hostname: str = socket.gethostname()
-        self.gateway_ip = conf.route.route("0.0.0.0")[2]
+        self.gateway_ip: str = conf.route.route("0.0.0.0")[2]
 
     async def check_and_update_offline_hosts(self) -> None:
         while True:
@@ -29,6 +29,7 @@ class HostService:
 
                 if host.status == Status.Online and seconds_since_last_seen > 60:
                     host.status = Status.Offline
+
                     event = Event(type=EventType.HOST_DISCONNECTED, data=host)
                     asyncio.create_task(self.event_handler.dispatch(event))
             await asyncio.sleep(30)

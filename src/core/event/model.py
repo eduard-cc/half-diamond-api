@@ -2,7 +2,7 @@ from datetime import datetime, timezone
 from enum import Enum
 from typing import List
 from pydantic import BaseModel, Field
-from models.host import Host
+from core.host.model import Host
 
 class EventType(str, Enum):
     HOST_NEW = "host.new"

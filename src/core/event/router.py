@@ -1,7 +1,7 @@
 from typing import List
 from fastapi import APIRouter, WebSocket, WebSocketDisconnect
-from services.event import Event
-from services.session import session
+from core.event.model import Event
+from core.session_setup import session
 
 event_router = APIRouter()
 
@@ -18,5 +18,5 @@ async def websocket_endpoint(websocket: WebSocket):
         await websocket.close()
 
 @event_router.get("/", response_model=List[Event])
-def get_hosts():
+def get_events():
     return session.event_handler.get_events()

@@ -1,8 +1,8 @@
 import nmap
 from typing import Any, List, Dict
-from services.host_service import HostService
-from models.host import Port
-from services.port_scan_type import PortScanType
+from core.host.service import HostService
+from core.host.model import Port
+from modules.port_scan.model import PortScanType
 
 class PortScan:
     def __init__(self, host_service: HostService):

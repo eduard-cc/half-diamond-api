@@ -1,8 +1,8 @@
-from services.arp_spoof import ArpSpoof
-from services.monitor import Monitor
-from services.probe import Probe
-from services.event_handler import EventHandler
-from services.host_service import HostService
+from modules.arp_spoof.service import ArpSpoof
+from modules.monitor.service import Monitor
+from modules.probe.service import Probe
+from core.event.handler import EventHandler
+from core.host.service import HostService
 
 class Session:
     def __init__(self):

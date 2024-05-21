@@ -1,8 +1,8 @@
 import nmap
 from typing import List, Dict
-from services.host_service import HostService
+from core.host.service import HostService
 
-class OSDetection:
+class OsDetect:
     def __init__(self, host_service: HostService):
         self.nmap = nmap.PortScanner()
         self.host_service = host_service
