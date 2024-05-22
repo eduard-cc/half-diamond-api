@@ -7,19 +7,18 @@ from core.event.handler import EventHandler
 from core.host.model import Host, Port, Status
 from scapy.all import ARP, conf
 import socket
-from getmac import get_mac_address
 from manuf import manuf, MacParser
+from scapy.all import get_if_hwaddr
+import platform
 
 class HostService:
     def __init__(self, event_handler: EventHandler):
-        self.hosts: Dict[str, Host] = {}
         self.event_handler: EventHandler = event_handler
+        self.mac_parser: MacParser = manuf.MacParser()
+        local_host = self.create_local_host()
+        self.hosts: Dict[str, Host] = {local_host.mac: local_host}
         self.check_coroutine: asyncio.Task = asyncio.create_task(
             self.check_and_update_offline_hosts())
-        self.mac_parser: MacParser = manuf.MacParser()
-        self.local_mac: str | None = get_mac_address()
-        self.local_hostname: str = socket.gethostname()
-        self.gateway_ip: str = conf.route.route("0.0.0.0")[2]
 
     async def check_and_update_offline_hosts(self) -> None:
         while True:
@@ -52,12 +51,10 @@ class HostService:
         if vendor is None:
             vendor = 'Unknown'
 
+        gateway_ip = conf.route.route("0.0.0.0")[2]
         hostname = None
-        if packet[ARP].psrc == self.gateway_ip:
+        if gateway_ip == packet[ARP].psrc:
             hostname = 'Gateway'
-        elif (self.local_mac is not None and
-              packet[ARP].hwsrc == self.local_mac):
-            hostname = self.local_hostname
 
         return Host(
             ip=packet[ARP].psrc,
@@ -66,6 +63,26 @@ class HostService:
             last_seen=datetime.now(),
             status=Status.Online,
             name=hostname
+        )
+
+    def create_local_host(self) -> Host:
+        with socket.socket(socket.AF_INET, socket.SOCK_DGRAM) as s:
+            s.connect(("8.8.8.8", 80))
+            ip = s.getsockname()[0]
+
+        mac = get_if_hwaddr(conf.iface)
+        vendor = self.mac_parser.get_manuf_long(mac)
+        if vendor is None:
+            vendor = 'Unknown'
+
+        return Host(
+            ip=ip,
+            mac=mac,
+            vendor=vendor,
+            last_seen=datetime.now(),
+            status=Status.Online,
+            name=socket.getfqdn(),
+            os=platform.platform(terse=False).replace('-', ' ')
         )
 
     def update_host(self, host: Host) -> None:
