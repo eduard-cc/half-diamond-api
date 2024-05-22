@@ -21,7 +21,7 @@ class OsDetect:
     def detect_target_ip(self, ip: str) -> str | None:
         try:
             scan_result = self.nmap.scan(hosts=ip, arguments='-O')
-        except Exception as e:
+        except Exception:
             return None
 
         scan_data = scan_result.get('scan', {}).get(ip, {}).get('osmatch')
