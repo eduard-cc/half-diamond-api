@@ -15,10 +15,12 @@ class PortScan:
 
         for ip in target_ips:
             open_ports = self.scan_ip(ip, scan_type)
-            if open_ports is not None:
+            if open_ports:
                 ports_by_ip[ip] = open_ports
 
-        self.host_service.update_ports(ports_by_ip, scan_type)
+        if ports_by_ip:
+            self.host_service.update_ports(ports_by_ip, scan_type)
+
         return ports_by_ip
 
     def scan_ip(self, ip: str, scan_type: PortScanType) -> List[Port] | None:
