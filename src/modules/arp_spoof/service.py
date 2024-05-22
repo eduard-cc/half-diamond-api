@@ -42,7 +42,7 @@ class ArpSpoof:
         thread.start()
         self.spoofing_threads.append(thread)
 
-    async def arp_spoof(self, target_ip: str, spoof_ip: str) -> None:
+    def arp_spoof(self, target_ip: str, spoof_ip: str) -> None:
         while True:
             with self.stop_event:
                 if not self.is_running:
