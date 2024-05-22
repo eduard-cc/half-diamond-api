@@ -23,6 +23,11 @@ class HostService:
     async def check_and_update_offline_hosts(self) -> None:
         while True:
             for host in self.hosts.values():
+                is_local_host = host.name and host.name != "Gateway"
+                if is_local_host:
+                    host.last_seen = datetime.now()
+                    continue
+
                 seconds_since_last_seen = (
                     datetime.now() - host.last_seen).total_seconds()
 
