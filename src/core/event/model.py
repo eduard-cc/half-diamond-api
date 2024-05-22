@@ -19,7 +19,7 @@ class EventType(str, Enum):
 class Event(BaseModel):
     time: datetime = Field(default_factory=lambda: datetime.now(timezone.utc))
     type: EventType
-    data: Host | List[Host]
+    data: List[Host]
 
     class Config:
         json_encoders = {

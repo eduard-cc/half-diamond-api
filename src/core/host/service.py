@@ -29,7 +29,7 @@ class HostService:
                 if host.status == Status.Online and seconds_since_last_seen > 60:
                     host.status = Status.Offline
 
-                    event = Event(type=EventType.HOST_DISCONNECTED, data=host)
+                    event = Event(type=EventType.HOST_DISCONNECTED, data=[host])
                     asyncio.create_task(self.event_handler.dispatch(event))
             await asyncio.sleep(30)
 
@@ -91,15 +91,15 @@ class HostService:
 
         if existing_host.status == Status.Offline:
             existing_host.status = Status.Online
-            event = Event(type=EventType.HOST_CONNECTED, data=host)
+            event = Event(type=EventType.HOST_CONNECTED, data=[host])
             asyncio.run(self.event_handler.dispatch(event))
         else:
-            event = Event(type=EventType.HOST_SEEN, data=host)
+            event = Event(type=EventType.HOST_SEEN, data=[host])
             asyncio.run(self.event_handler.dispatch(event))
 
     def add_host(self, host: Host) -> None:
         self.hosts[host.mac] = host
-        event = Event(type=EventType.HOST_NEW, data=host)
+        event = Event(type=EventType.HOST_NEW, data=[host])
         asyncio.run(self.event_handler.dispatch(event))
 
     def update_ports(self, ports_by_ip: Dict[str, List[Port]],
@@ -115,11 +115,11 @@ class HostService:
                         host.open_ports.append(port)
 
                 if scan_type == PortScanType.SYN:
-                    event = Event(type=EventType.SCAN_SYN, data=host)
+                    event = Event(type=EventType.SCAN_SYN, data=[host])
                 elif scan_type == PortScanType.TCP:
-                    event = Event(type=EventType.SCAN_TCP, data=host)
+                    event = Event(type=EventType.SCAN_TCP, data=[host])
                 elif scan_type == PortScanType.UDP:
-                    event = Event(type=EventType.SCAN_UDP, data=host)
+                    event = Event(type=EventType.SCAN_UDP, data=[host])
 
                 asyncio.run(self.event_handler.dispatch(event))
 
@@ -130,5 +130,5 @@ class HostService:
             host = ip_to_host.get(ip)
             if host:
                 host.os = os
-                event = Event(type=EventType.OS_DETECTED, data=host)
+                event = Event(type=EventType.OS_DETECTED, data=[host])
                 asyncio.run(self.event_handler.dispatch(event))
