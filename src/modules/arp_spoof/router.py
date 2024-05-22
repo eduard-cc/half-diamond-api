@@ -20,7 +20,7 @@ async def start_arp_spoof(background_tasks: BackgroundTasks,
 @arp_spoof_router.post("/stop")
 async def stop_arp_spoof():
     try:
-        session.arp_spoof.stop()
+        await session.arp_spoof.stop()
         return {"message": "ARP spoof stopped"}
     except Exception as e:
         raise HTTPException(status_code=500, detail=str(e))
