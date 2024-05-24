@@ -6,7 +6,10 @@ arp_spoof_router = APIRouter()
 
 @arp_spoof_router.get("/status")
 def get_arp_spoof_status():
-    return {"running": session.arp_spoof.is_running}
+    return {
+        "running": session.arp_spoof.is_running,
+        "targets": session.arp_spoof.target_ips
+    }
 
 @arp_spoof_router.post("/start")
 async def start_arp_spoof(background_tasks: BackgroundTasks,
