@@ -30,6 +30,8 @@ class Monitor:
 
     def process_packet(self, packet: bytes) -> None:
         if ARP in packet and packet[ARP].op in (1, 2):
+            if packet[ARP].hwsrc == "ff:ff:ff:ff:ff:ff":
+                return
             host = self.host_service.create_host(packet)
             existing_host = self.host_service.hosts.get(host.mac)
             if existing_host:
