@@ -20,7 +20,7 @@ class ArpSpoof:
         self.host_mac: str = getmacbyip(self.host_ip)
         self.gateway_ip: str = conf.route.route("0.0.0.0")[2]
         self.gateway_mac: str = getmacbyip(self.gateway_ip)
-        self.THROTTLE: int = 2
+        self.THROTTLE: int = 8
         self.ip_forward = IPForward()
 
     async def start(self, target_ips: List[str]) -> None:
