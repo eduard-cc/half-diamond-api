@@ -28,7 +28,7 @@ class IPForward:
         try:
             subprocess.run(SYSCTL_COMMAND, check=True)
         except subprocess.CalledProcessError:
-            raise Exception("Failed to set IP forwarding. Are you running this as root?")
+            raise Exception("Failed to set IP forwarding.")
 
     def set_ip_forwarding(self, state: int):
         try:
