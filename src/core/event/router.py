@@ -17,6 +17,10 @@ async def websocket_endpoint(websocket: WebSocket):
     except Exception:
         await websocket.close()
 
-@event_router.get("/", response_model=List[Event])
+@event_router.get("/",
+                  response_model=List[Event],
+                  summary="Get all events",
+                  description="Get all events from the current session.",
+                  tags=["Events"])
 def get_events():
     return session.event_handler.get_events()
