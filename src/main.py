@@ -8,7 +8,11 @@ from modules.os_detect.router import os_detection_router
 from core.host.router import host_router
 from core.event.router import event_router
 
-app = FastAPI()
+app = FastAPI(
+    title="netpick API",
+    description="A pen testing toolkit for network recon and MITM attacks.",
+    version="1.0",
+)
 
 origins = [
     "http://localhost:5173",
