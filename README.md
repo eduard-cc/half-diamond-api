@@ -37,7 +37,7 @@ To compile from source, make sure that you have Python 3.10 or above installed.
 
 #### libpcap/Npcap
 
-netpick uses [Scapy](https://scapy.net/) for network packet manipulation. Depending on your operating system, install one of the following:
+netpick uses [Scapy](https://scapy.net/) for packet manipulation. Depending on your operating system, install one of the following:
 
 - **Linux/MacOS**: Install [libpcap](https://www.tcpdump.org/). Refer to the [Scapy documentation](https://scapy.readthedocs.io/en/latest/installation.html#platform-specific-instructions) for more details.
 - **Windows**: Install [Npcap](https://npcap.com/).
