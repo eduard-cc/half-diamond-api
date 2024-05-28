@@ -1,37 +1,30 @@
-# build API
-FROM python:3.9 as api-builder
+# build web UI
+FROM node:18-alpine as web-builder
 
-WORKDIR /code
+WORKDIR /web
+
+RUN apk add --no-cache git
+RUN git clone https://github.com/eduard-cc/netpick-web.git .
+
+RUN npm install
+RUN npm run build
+
+FROM nikolaik/python-nodejs:python3.11-nodejs18
 
 # system dependencies
 RUN apt-get update && apt-get install -y \
     libpcap-dev \
     nmap
 
+WORKDIR /app
+
+COPY ./src /app/api/src
+COPY ./requirements.txt /app/api
+
 # python dependencies
-COPY ./requirements.txt /code/requirements.txt
-RUN pip install --no-cache-dir --upgrade -r /code/requirements.txt
+RUN pip install --no-cache-dir --upgrade -r /app/api/requirements.txt
 
-COPY ./src /code/src
-
-# build web UI
-FROM node:18-alpine as web-builder
-
-WORKDIR /app
-
-RUN git clone https://github.com/eduard-cc/netpick-web.git .
-
-RUN npm install
-RUN npm run build
-
-# final stage
-FROM python:3.9
-
-WORKDIR /app
-
-COPY --from=api-builder /code/src /app/api
-
-COPY --from=web-builder /app/build /app/web
+COPY --from=web-builder /web /app/web
 
 COPY entrypoint.sh /entrypoint.sh
 RUN chmod +x /entrypoint.sh
