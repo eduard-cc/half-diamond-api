@@ -7,6 +7,8 @@ netpick is a toolkit for network recon and MITM attacks.
 - Man-in-the-Middle attack capabilities using ARP spoofing.
 - Event-driven communication with the [web UI](https://github.com/eduard-cc/half-diamond-web) via WebSocket.
 
+![web UI screenshot](https://github.com/eduard-cc/netpick-api/blob/main/docs/media/screenshot.png?raw=true)
+
 ## Installation
 
 ### Using Docker
