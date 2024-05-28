@@ -22,7 +22,7 @@ docker pull eduardcc/netpick
 #### 2. Run a container from the image:
 
 ```bash
-docker run --net=host eduardcc/netpick
+docker run --privileged --net=host eduardcc/netpick
 ```
 
 The web UI will run at `http://localhost:3000` and the API at `http://localhost:8000`.
@@ -74,3 +74,5 @@ uvicorn main:app # for development, add --reload to enable auto-reload.
 ```
 
 The API will start at `http://127.0.0.1:8000/`. To build and run the [web UI](https://github.com/eduard-cc/half-diamond-web), refer to its installation guide.
+
+**Note**: The API requires elevated privileges to function properly.
