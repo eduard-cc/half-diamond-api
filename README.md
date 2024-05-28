@@ -17,13 +17,12 @@ The easiest way to install netpick along with its dependencies and the web UI is
 
 ```bash
 docker pull eduardcc/netpick
-docker run --net=host eduardcc/netpick
 ```
 
 #### 2. Run a container from the image:
 
 ```bash
-docker run -p 8000:8000 -p 3000:3000 eduardcc/netpick
+docker run --net=host eduardcc/netpick
 ```
 
 The web UI will run at `http://localhost:3000` and the API at `http://localhost:8000`.
