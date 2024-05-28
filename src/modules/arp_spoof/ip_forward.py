@@ -1,6 +1,8 @@
 import platform
-import winreg
 import subprocess
+
+if platform.system() == "Windows":
+    import winreg
 
 class IPForward:
     def __init__(self):
