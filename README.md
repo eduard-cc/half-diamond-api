@@ -81,4 +81,4 @@ The API will start at `http://127.0.0.1:8000/`. To build and run the [web UI](ht
 
 ## Swagger UI documentation
 
-You can view the OpenAPI specification of this API [here](https://eduard-cc.github.io/boards-api/).
+You can view the OpenAPI specification of this API [here](https://eduard-cc.github.io/netpick-api/).
