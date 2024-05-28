@@ -1,3 +1,5 @@
+import ipaddress
+from fastapi import HTTPException
 import nmap
 from typing import Any, List, Dict
 from core.host.service import HostService
@@ -14,6 +16,12 @@ class PortScan:
         ports_by_ip: Dict[str, List[Port]] = {}
 
         for ip in target_ips:
+            try:
+                ipaddress.ip_address(ip)
+            except ValueError:
+                raise HTTPException(status_code=400,
+                                    detail=f"{ip} is not a valid IP address")
+
             open_ports = self.scan_ip(ip, scan_type)
             if open_ports:
                 ports_by_ip[ip] = open_ports

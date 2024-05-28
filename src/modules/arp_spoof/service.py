@@ -1,4 +1,6 @@
+import ipaddress
 from threading import Thread, Lock, Condition
+from fastapi import HTTPException
 from scapy.all import ARP, send, conf
 from scapy.layers.l2 import getmacbyip
 from typing import List
@@ -24,6 +26,12 @@ class ArpSpoof:
         self.ip_forward = IPForward()
 
     async def start(self, target_ips: List[str]) -> None:
+        for ip in target_ips:
+            try:
+                ipaddress.ip_address(ip)
+            except ValueError:
+                raise HTTPException(status_code=400,
+                                    detail=f"{ip} is not a valid IP address")
         with self.lock:
             try:
                 self.is_running = True
@@ -35,9 +43,9 @@ class ArpSpoof:
                               data=self.hosts)
                 await self.host_service.event_handler.dispatch(event)
 
-                for target_ip in target_ips:
-                    self.dispatch_thread(target_ip, self.gateway_ip)
-                    self.dispatch_thread(self.gateway_ip, target_ip)
+                for ip in target_ips:
+                    self.dispatch_thread(ip, self.gateway_ip)
+                    self.dispatch_thread(self.gateway_ip, ip)
             except Exception:
                 self.is_running = False
                 raise

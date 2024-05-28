@@ -1,3 +1,5 @@
+import ipaddress
+from fastapi import HTTPException
 import nmap
 from typing import List, Dict
 from core.host.service import HostService
@@ -11,6 +13,11 @@ class OsDetect:
         os_by_ip: Dict[str, str] = {}
 
         for ip in target_ips:
+            try:
+                ipaddress.ip_address(ip)
+            except ValueError:
+                raise HTTPException(status_code=400,
+                                    detail=f"{ip} is not a valid IP address")
             os = self.detect_target_ip(ip)
             if os is not None and os != 'Unknown':
                 os_by_ip[ip] = os
