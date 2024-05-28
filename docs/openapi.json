@@ -1,0 +1,601 @@
+{
+  "openapi": "3.1.0",
+  "info": {
+    "title": "netpick API",
+    "description": "A pen testing toolkit for network recon and MITM attacks.",
+    "version": "1.0"
+  },
+  "paths": {
+    "/monitor/status": {
+      "get": {
+        "tags": ["Monitor"],
+        "summary": "Get Monitor status",
+        "description": "Get the status of the Monitor module.",
+        "operationId": "get_monitor_status_monitor_status_get",
+        "responses": {
+          "200": {
+            "description": "Successful Response",
+            "content": {
+              "application/json": {
+                "schema": {}
+              }
+            }
+          }
+        }
+      }
+    },
+    "/monitor/start": {
+      "post": {
+        "tags": ["Monitor"],
+        "summary": "Start Monitor",
+        "description": "Start discovering active hosts on the network by sniffing\n                     ARP packets.",
+        "operationId": "start_monitor_monitor_start_post",
+        "responses": {
+          "200": {
+            "description": "Successful Response",
+            "content": {
+              "application/json": {
+                "schema": {}
+              }
+            }
+          }
+        }
+      }
+    },
+    "/monitor/stop": {
+      "post": {
+        "tags": ["Monitor"],
+        "summary": "Stop Monitor",
+        "description": "Stop sniffing active hosts on the network.",
+        "operationId": "stop_monitor_monitor_stop_post",
+        "responses": {
+          "200": {
+            "description": "Successful Response",
+            "content": {
+              "application/json": {
+                "schema": {}
+              }
+            }
+          }
+        }
+      }
+    },
+    "/hosts/": {
+      "get": {
+        "tags": ["Hosts"],
+        "summary": "Get all hosts",
+        "description": "Get all hosts from the current session.",
+        "operationId": "get_hosts_hosts__get",
+        "responses": {
+          "200": {
+            "description": "Successful Response",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "items": {
+                    "$ref": "#/components/schemas/Host"
+                  },
+                  "type": "array",
+                  "title": "Response Get Hosts Hosts  Get"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/probe/status": {
+      "get": {
+        "tags": ["Probe"],
+        "summary": "Get Probe status",
+        "description": "Get the status of the Probe module.",
+        "operationId": "get_probe_status_probe_status_get",
+        "responses": {
+          "200": {
+            "description": "Successful Response",
+            "content": {
+              "application/json": {
+                "schema": {}
+              }
+            }
+          }
+        }
+      }
+    },
+    "/probe/start": {
+      "post": {
+        "tags": ["Probe"],
+        "summary": "Start Probe",
+        "description": "Start actively probing the network by periodically sending\n                   ARP requests to all the IPs in the subnet.",
+        "operationId": "start_probe_probe_start_post",
+        "responses": {
+          "200": {
+            "description": "Successful Response",
+            "content": {
+              "application/json": {
+                "schema": {}
+              }
+            }
+          }
+        }
+      }
+    },
+    "/probe/stop": {
+      "post": {
+        "tags": ["Probe"],
+        "summary": "Stop Probe",
+        "description": "Stop actively probing the network for active hosts.",
+        "operationId": "stop_probe_probe_stop_post",
+        "responses": {
+          "200": {
+            "description": "Successful Response",
+            "content": {
+              "application/json": {
+                "schema": {}
+              }
+            }
+          }
+        }
+      }
+    },
+    "/arp-spoof/status": {
+      "get": {
+        "tags": ["ARP Spoof"],
+        "summary": "Get ARP Spoof status",
+        "description": "Get the status of the ARP spoof module and the current\n                      target IPs if running.",
+        "operationId": "get_arp_spoof_status_arp_spoof_status_get",
+        "responses": {
+          "200": {
+            "description": "Successful Response",
+            "content": {
+              "application/json": {
+                "schema": {}
+              }
+            }
+          }
+        }
+      }
+    },
+    "/arp-spoof/start": {
+      "post": {
+        "tags": ["ARP Spoof"],
+        "summary": "Start ARP Spoof",
+        "description": "Start sending spoofed ARP packets to the targets.",
+        "operationId": "start_arp_spoof_arp_spoof_start_post",
+        "requestBody": {
+          "content": {
+            "application/json": {
+              "schema": {
+                "items": {
+                  "type": "string"
+                },
+                "type": "array",
+                "title": "Target Ips"
+              }
+            }
+          },
+          "required": true
+        },
+        "responses": {
+          "200": {
+            "description": "Successful Response",
+            "content": {
+              "application/json": {
+                "schema": {}
+              }
+            }
+          },
+          "422": {
+            "description": "Validation Error",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/HTTPValidationError"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/arp-spoof/stop": {
+      "post": {
+        "tags": ["ARP Spoof"],
+        "summary": "Stop ARP Spoof",
+        "description": "Stop sending spoofed packets and restore\n                       the ARP tables of the targets.",
+        "operationId": "stop_arp_spoof_arp_spoof_stop_post",
+        "responses": {
+          "200": {
+            "description": "Successful Response",
+            "content": {
+              "application/json": {
+                "schema": {}
+              }
+            }
+          }
+        }
+      }
+    },
+    "/events/": {
+      "get": {
+        "tags": ["Events"],
+        "summary": "Get all events",
+        "description": "Get all events from the current session.",
+        "operationId": "get_events_events__get",
+        "responses": {
+          "200": {
+            "description": "Successful Response",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "items": {
+                    "$ref": "#/components/schemas/Event"
+                  },
+                  "type": "array",
+                  "title": "Response Get Events Events  Get"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/ports": {
+      "patch": {
+        "tags": ["Scan"],
+        "summary": "Scan ports",
+        "description": "Scan the ports of the target IPs.\n                        Supports TCP SYN, TCP Connect, and UDP scans.",
+        "operationId": "scan_ports_ports_patch",
+        "parameters": [
+          {
+            "name": "type",
+            "in": "query",
+            "required": false,
+            "schema": {
+              "allOf": [
+                {
+                  "$ref": "#/components/schemas/PortScanType"
+                }
+              ],
+              "default": "-sS",
+              "title": "Type"
+            }
+          }
+        ],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "type": "array",
+                "items": {
+                  "type": "string"
+                },
+                "title": "Target Ips"
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "Successful Response",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "additionalProperties": {
+                    "type": "array",
+                    "items": {
+                      "$ref": "#/components/schemas/Port"
+                    }
+                  },
+                  "title": "Response Scan Ports Ports Patch"
+                }
+              }
+            }
+          },
+          "422": {
+            "description": "Validation Error",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/HTTPValidationError"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/os": {
+      "patch": {
+        "tags": ["Scan"],
+        "summary": "Scan OS",
+        "description": "Detect the Operating System of the target IPs.",
+        "operationId": "scan_os_os_patch",
+        "requestBody": {
+          "content": {
+            "application/json": {
+              "schema": {
+                "items": {
+                  "type": "string"
+                },
+                "type": "array",
+                "title": "Target Ips"
+              }
+            }
+          },
+          "required": true
+        },
+        "responses": {
+          "200": {
+            "description": "Successful Response",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "additionalProperties": {
+                    "type": "string"
+                  },
+                  "type": "object",
+                  "title": "Response Scan Os Os Patch"
+                }
+              }
+            }
+          },
+          "422": {
+            "description": "Validation Error",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/HTTPValidationError"
+                }
+              }
+            }
+          }
+        }
+      }
+    }
+  },
+  "components": {
+    "schemas": {
+      "Event": {
+        "properties": {
+          "time": {
+            "type": "string",
+            "format": "date-time",
+            "title": "Time"
+          },
+          "type": {
+            "$ref": "#/components/schemas/EventType"
+          },
+          "data": {
+            "items": {
+              "$ref": "#/components/schemas/Host"
+            },
+            "type": "array",
+            "title": "Data"
+          }
+        },
+        "type": "object",
+        "required": ["type", "data"],
+        "title": "Event"
+      },
+      "EventType": {
+        "type": "string",
+        "enum": [
+          "host.new",
+          "host.seen",
+          "host.connected",
+          "host.disconnected",
+          "scan.tcp",
+          "scan.syn",
+          "scan.udp",
+          "os.detected",
+          "arp.spoof.started",
+          "arp.spoof.stopped"
+        ],
+        "title": "EventType"
+      },
+      "HTTPValidationError": {
+        "properties": {
+          "detail": {
+            "items": {
+              "$ref": "#/components/schemas/ValidationError"
+            },
+            "type": "array",
+            "title": "Detail"
+          }
+        },
+        "type": "object",
+        "title": "HTTPValidationError"
+      },
+      "Host": {
+        "properties": {
+          "ip": {
+            "type": "string",
+            "title": "Ip"
+          },
+          "mac": {
+            "type": "string",
+            "title": "Mac"
+          },
+          "vendor": {
+            "type": "string",
+            "title": "Vendor"
+          },
+          "last_seen": {
+            "type": "string",
+            "format": "date-time",
+            "title": "Last Seen"
+          },
+          "status": {
+            "$ref": "#/components/schemas/Status"
+          },
+          "name": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Name"
+          },
+          "os": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Os"
+          },
+          "open_ports": {
+            "anyOf": [
+              {
+                "items": {
+                  "$ref": "#/components/schemas/Port"
+                },
+                "type": "array"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Open Ports"
+          }
+        },
+        "type": "object",
+        "required": ["ip", "mac", "vendor", "last_seen", "status"],
+        "title": "Host"
+      },
+      "Port": {
+        "properties": {
+          "port": {
+            "type": "integer",
+            "title": "Port"
+          },
+          "protocol": {
+            "type": "string",
+            "title": "Protocol"
+          },
+          "state": {
+            "type": "string",
+            "title": "State"
+          },
+          "name": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Name"
+          },
+          "product": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Product"
+          },
+          "extrainfo": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Extrainfo"
+          },
+          "reason": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Reason"
+          },
+          "version": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Version"
+          },
+          "conf": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Conf"
+          }
+        },
+        "type": "object",
+        "required": ["port", "protocol", "state"],
+        "title": "Port"
+      },
+      "PortScanType": {
+        "type": "string",
+        "enum": ["-sS", "-sT", "-sU"],
+        "title": "PortScanType"
+      },
+      "Status": {
+        "type": "string",
+        "enum": ["Online", "Offline"],
+        "title": "Status"
+      },
+      "ValidationError": {
+        "properties": {
+          "loc": {
+            "items": {
+              "anyOf": [
+                {
+                  "type": "string"
+                },
+                {
+                  "type": "integer"
+                }
+              ]
+            },
+            "type": "array",
+            "title": "Location"
+          },
+          "msg": {
+            "type": "string",
+            "title": "Message"
+          },
+          "type": {
+            "type": "string",
+            "title": "Error Type"
+          }
+        },
+        "type": "object",
+        "required": ["loc", "msg", "type"],
+        "title": "ValidationError"
+      }
+    }
+  }
+}

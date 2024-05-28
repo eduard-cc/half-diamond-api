@@ -78,3 +78,7 @@ uvicorn main:app # for development, add --reload to enable auto-reload.
 The API will start at `http://127.0.0.1:8000/`. To build and run the [web UI](https://github.com/eduard-cc/half-diamond-web), refer to its installation guide.
 
 **Note**: The API requires elevated privileges to function properly.
+
+## Swagger UI documentation
+
+You can view the OpenAPI specification of this API [here](https://eduard-cc.github.io/boards-api/).
