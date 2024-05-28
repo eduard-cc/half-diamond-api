@@ -1,4 +1,4 @@
-netpick is a pen testing toolkit for network reconnaissance and MITM attacks.
+netpick is a toolkit for network recon and MITM attacks.
 
 ## Features
 
@@ -17,9 +17,10 @@ The easiest way to install netpick along with its dependencies and the web UI is
 
 ```bash
 docker pull eduardcc/netpick
+docker run --net=host eduardcc/netpick
 ```
 
-#### 2. Run the image:
+#### 2. Run a container from the image:
 
 ```bash
 docker run -p 8000:8000 -p 3000:3000 eduardcc/netpick
@@ -28,6 +29,8 @@ docker run -p 8000:8000 -p 3000:3000 eduardcc/netpick
 The web UI will run at `http://localhost:3000` and the API at `http://localhost:8000`.
 
 ### Manually compiling from source
+
+To compile from source, make sure that you have Python 3.10 or above installed.
 
 #### 1. Install the system dependencies
 
@@ -46,16 +49,16 @@ netpick also requires [Nmap](https://nmap.org/) to be installed locally. Downloa
 
 ```bash
 git clone https://github.com/eduard-cc/netpick-api.git
-cd netpick
+cd netpick-api
 ```
 
-#### 2. Install the Python requirements
+#### 3. Install the Python requirements
 
 Create and activate the virtual environment:
 
 ```bash
 python3 -m venv env
-source env/bin/activate  # On Windows, use `env\Scripts\activate`
+source env/bin/activate  # on Windows, use env\Scripts\activate
 ```
 
 Install the requirements:
@@ -64,11 +67,11 @@ Install the requirements:
 pip install -r requirements.txt
 ```
 
-Once all dependencies are installed, start the server:
+#### 4. Start the server
 
 ```bash
 cd src
-uvicorn main:app
+uvicorn main:app # for development, add --reload to enable auto-reload.
 ```
 
-The API will start at `http://127.0.0.1:8000/`. To run the [web UI](https://github.com/eduard-cc/half-diamond-web), refer to its manual installation guide.
+The API will start at `http://127.0.0.1:8000/`. To build and run the [web UI](https://github.com/eduard-cc/half-diamond-web), refer to its installation guide.
